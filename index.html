@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Work Plan Harian — Alpha Team</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Newsreader:ital,opsz@0,6..72;1,6..72&display=swap');
+
+  :root{
+    --ink:#1a1814;
+    --paper:#f4 efe6;
+    --paper:#f4efe6;
+    --card:#fffdf8;
+    --line:#e2dacb;
+    --accent:#c8492f;
+    --accent-soft:#f0d9d2;
+    --green:#3f6b3a;
+    --green-soft:#dde8d8;
+    --muted:#8a8276;
+    --gold:#b8893d;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{background:var(--paper);}
+  body{
+    font-family:'Bricolage Grotesque',sans-serif;
+    color:var(--ink);
+    max-width:560px;
+    margin:0 auto;
+    padding:0 0 60px;
+    min-height:100vh;
+  }
+  /* ---------- HEADER ---------- */
+  header{
+    background:var(--ink);
+    color:var(--paper);
+    padding:22px 20px 26px;
+    border-bottom:3px solid var(--accent);
+    position:relative;
+    overflow:hidden;
+  }
+  header::after{
+    content:"";position:absolute;right:-30px;top:-30px;
+    width:140px;height:140px;border-radius:50%;
+    background:radial-gradient(circle,rgba(200,73,47,.35),transparent 70%);
+  }
+  .kicker{
+    font-size:11px;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--gold);font-weight:600;
+  }
+  h1{
+    font-family:'Newsreader',serif;font-weight:600;font-size:30px;
+    line-height:1.05;margin:4px 0 2px;font-style:italic;
+  }
+  .datebar{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    margin-top:14px;gap:12px;
+  }
+  .datebar .who{font-size:13px;color:#cdc6b8;}
+  .datebar .who b{color:var(--paper);font-weight:600;}
+  #today{
+    font-size:13px;color:var(--paper);text-align:right;
+    border:1px solid #4a463e;border-radius:8px;padding:6px 10px;
+    background:#262219;
+  }
+  /* ---------- PROGRESS ---------- */
+  .progwrap{padding:18px 20px 6px;}
+  .progtop{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+  .progtop .label{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600;}
+  .progtop .count{font-family:'Newsreader',serif;font-size:15px;}
+  .progtop .count b{font-size:26px;color:var(--accent);font-style:italic;}
+  .bar{height:14px;background:#e7ded0;border-radius:20px;overflow:hidden;border:1px solid var(--line);}
+  .bar > div{
+    height:100%;width:0%;
+    background:repeating-linear-gradient(45deg,var(--accent),var(--accent) 8px,#d4583e 8px,#d4583e 16px);
+    transition:width .5s cubic-bezier(.2,.8,.2,1);
+  }
+  .bar.win > div{background:repeating-linear-gradient(45deg,var(--green),var(--green) 8px,#4d7d47 8px,#4d7d47 16px);}
+  .winmsg{
+    text-align:center;font-family:'Newsreader',serif;font-style:italic;
+    font-size:14px;color:var(--green);margin-top:8px;height:18px;
+    opacity:0;transition:opacity .4s;
+  }
+  .winmsg.show{opacity:1;}
+  /* ---------- TABS ---------- */
+  .tabs{display:flex;gap:6px;padding:14px 20px 0;}
+  .tab{
+    flex:1;padding:9px 4px;text-align:center;font-size:12px;font-weight:600;
+    letter-spacing:.04em;text-transform:uppercase;cursor:pointer;
+    background:transparent;border:none;color:var(--muted);
+    border-bottom:2px solid transparent;font-family:inherit;
+  }
+  .tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+  .panel{display:none;padding:14px 20px 0;}
+  .panel.active{display:block;}
+  /* ---------- CHECKLIST ---------- */
+  .task{
+    background:var(--card);border:1px solid var(--line);border-radius:12px;
+    margin-bottom:10px;display:flex;align-items:stretch;overflow:hidden;
+    transition:transform .12s,box-shadow .2s;
+  }
+  .task:active{transform:scale(.99);}
+  .task.done{background:var(--green-soft);border-color:#c2d4ba;}
+  .check{
+    width:54px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+    cursor:pointer;border-right:1px solid var(--line);background:#fbf8f1;
+  }
+  .task.done .check{background:#cfe0c7;border-right-color:#c2d4ba;}
+  .box{
+    width:26px;height:26px;border:2px solid var(--muted);border-radius:7px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:16px;color:#fff;transition:all .15s;
+  }
+  .task.done .box{background:var(--green);border-color:var(--green);}
+  .tbody{padding:11px 12px;flex:1;cursor:pointer;}
+  .tnum{font-size:10px;letter-spacing:.1em;color:var(--gold);font-weight:600;}
+  .ttitle{font-size:14.5px;font-weight:600;line-height:1.3;margin-top:1px;}
+  .task.done .ttitle{text-decoration:line-through;color:var(--muted);}
+  .ttarget{
+    font-size:11px;color:var(--accent);background:var(--accent-soft);
+    display:inline-block;padding:2px 8px;border-radius:20px;margin-top:5px;font-weight:600;
+  }
+  .task.done .ttarget{color:var(--green);background:#cfe0c7;}
+  /* ---------- RESET BTN ---------- */
+  .resetbtn{
+    width:100%;margin-top:6px;padding:13px;border:1.5px dashed var(--line);
+    background:transparent;border-radius:12px;color:var(--muted);
+    font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;
+    letter-spacing:.04em;
+  }
+  .resetbtn:active{background:#ece4d5;}
+  /* ---------- TEMPLATES ---------- */
+  .tpl{
+    background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:13px 14px;margin-bottom:10px;
+  }
+  .tpl h3{font-size:13px;font-weight:600;display:flex;justify-content:space-between;align-items:center;}
+  .tpl .shortcut{font-size:10px;color:var(--gold);letter-spacing:.08em;}
+  .tpl textarea{
+    width:100%;margin-top:8px;border:1px solid var(--line);border-radius:8px;
+    padding:9px;font-family:'Newsreader',serif;font-size:13.5px;line-height:1.5;
+    background:#fffef9;color:var(--ink);resize:vertical;min-height:70px;
+  }
+  .tplbtns{display:flex;gap:7px;margin-top:8px;}
+  .tplbtns button{
+    flex:1;padding:8px;border-radius:8px;border:none;font-family:inherit;
+    font-size:12px;font-weight:600;cursor:pointer;
+  }
+  .copybtn{background:var(--ink);color:var(--paper);}
+  .copybtn.copied{background:var(--green);}
+  .delbtn{background:var(--accent-soft);color:var(--accent);flex:0 0 44px;}
+  .addbtn{
+    width:100%;padding:12px;border-radius:12px;border:none;
+    background:var(--accent);color:#fff;font-family:inherit;font-weight:600;
+    font-size:13px;cursor:pointer;letter-spacing:.04em;
+  }
+  /* ---------- NOTES ---------- */
+  .noteshint{font-size:12px;color:var(--muted);font-style:italic;
+    font-family:'Newsreader',serif;margin-bottom:10px;}
+  #notes{
+    width:100%;border:1px solid var(--line);border-radius:12px;
+    padding:13px;font-family:'Newsreader',serif;font-size:14px;line-height:1.6;
+    background:var(--card);color:var(--ink);resize:vertical;min-height:240px;
+  }
+  /* ---------- ACCOUNTS ---------- */
+  .acct{
+    display:flex;justify-content:space-between;align-items:center;
+    background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:11px 13px;margin-bottom:8px;
+  }
+  .acct .plat{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;}
+  .acct .handle{font-size:14px;font-weight:600;margin-top:1px;}
+  .acct .handle.empty{color:#c4bcab;font-weight:400;font-style:italic;font-family:'Newsreader',serif;}
+  .acct .copyacct{
+    background:#fbf8f1;border:1px solid var(--line);border-radius:7px;
+    padding:7px 11px;font-size:11px;font-weight:600;cursor:pointer;
+    font-family:inherit;color:var(--ink);
+  }
+  .acct .copyacct.copied{background:var(--green);color:#fff;border-color:var(--green);}
+  .sectlabel{
+    font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--muted);font-weight:600;margin:4px 0 10px;
+  }
+  footer{
+    text-align:center;font-size:11px;color:#bdb4a3;margin-top:24px;
+    font-family:'Newsreader',serif;font-style:italic;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="kicker">Work Plan Harian</div>
+  <h1>Alpha Team</h1>
+  <div class="datebar">
+    <div class="who">Pelaksana: <b id="nameDisplay" style="cursor:pointer;border-bottom:1px dashed rgba(255,255,255,0.4);padding-bottom:1px;">Rinaldo</b></div>
+    <div id="today">—</div>
+  </div>
+</header>
+
+<div class="progwrap">
+  <div class="progtop">
+    <span class="label">Progress hari ini</span>
+    <span class="count"><b id="doneCount">0</b> / 10 tugas</span>
+  </div>
+  <div class="bar" id="bar"><div></div></div>
+  <div class="winmsg" id="winmsg">Target minimal 8 ceklist tercapai. Mantap, Aldo!</div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-tab="list">Checklist</button>
+  <button class="tab" data-tab="tpl">Template</button>
+  <button class="tab" data-tab="notes">Catatan</button>
+  <button class="tab" data-tab="acct">Akun</button>
+</div>
+
+<!-- CHECKLIST -->
+<div class="panel active" id="list"></div>
+
+<!-- TEMPLATES -->
+<div class="panel" id="tpl">
+  <p class="noteshint">Simpan pesan yang sering dipakai di sini. Tap "Salin" lalu paste di WhatsApp / DM. Untuk WhatsApp Business, shortcut bisa kamu daftarkan jadi Quick Reply.</p>
+  <div id="tplList"></div>
+  <button class="addbtn" id="addTpl">+ Tambah Template</button>
+</div>
+
+<!-- NOTES -->
+<div class="panel" id="notes-panel">
+  <p class="noteshint">Catatan harian — sudah DM siapa, lead yang prospek, janji follow up besok, dll. Tersimpan otomatis.</p>
+  <textarea id="notes" placeholder="Contoh:&#10;- DM 20 sudah, 3 balas (Bu Sari, Pak Andre, akun @rezky..)&#10;- Broadcast promo batch 1 jalan&#10;- Follow up besok: Pak Andre minta brosur tipe 36"></textarea>
+</div>
+
+<!-- ACCOUNTS -->
+<div class="panel" id="acct">
+  <div class="sectlabel">Akun Online — tap untuk salin handle</div>
+  <div id="acctList"></div>
+</div>
+
+<footer>Disiapkan sekali · dipakai tiap hari · data tersimpan di HP kamu</footer>
+
+<script>
+(function(){
+  "use strict";
+  var LS = window.localStorage;
+  var todayKey = new Date().toISOString().slice(0,10);
+
+  /* ---- DATA TUGAS (dari work plan) ---- */
+  var TASKS = [
+    {t:"Post IG & FB — Feeds + Story", g:"Story 3"},
+    {t:"Post TikTok — Story + Feeds video baru", g:"Story 3 · Video 2"},
+    {t:"Update WA Status", g:"5 status"},
+    {t:"DM Instagram / TikTok", g:"20 DM"},
+    {t:"Olah Database + Save Contact", g:"30 kontak"},
+    {t:"Broadcast Update Promo (perkenalan produk)", g:"50 orang"},
+    {t:"Japri Update Promo / Invitation (perkenalan produk)", g:"50 orang"},
+    {t:"Paid Promo (IG / FB / Meta)", g:"Jalankan"},
+    {t:"Canvassing / Live TikTok / Live IG", g:"2 jam"},
+    {t:"Open Table", g:"Sesuai jadwal"}
+  ];
+
+  var DEFAULT_TPL = [
+    {n:"Broadcast — TreeTops (Hook Harga)", s:"/promo1", b:"Halo Kak \uD83D\uDC4B Ada info menarik nih!\n\nRumah 3 lantai, 4 kamar tidur, 4 kamar mandi di kawasan premium Lippo Village Karawaci \u2014 harga mulai 774 juta. Cicilan mulai 3,8 juta/bulan, DP hanya 2,5%.\n\nLokasinya di Lippo Village Central, dekat:\n\u2714\uFE0F Sekolah Pelita Harapan & Dian Harapan\n\u2714\uFE0F RS Siloam\n\u2714\uFE0F Supermall & Maxxbox Karawaci\n\nIni TreeTops @Diponegoro by Lippo Village. Boleh saya kirim detail lengkap + simulasi KPR-nya, Kak?"},
+    {n:"Broadcast — TreeTops (Hook Fleksibilitas)", s:"/promo2", b:"Halo Kak \uD83D\uDC4B Kalau Kakak kerja dari rumah atau punya bisnis online, produk ini mungkin yang paling cocok.\n\nTreeTops @Diponegoro, Lippo Village Karawaci:\n\u2705 3 lantai, 4 KT, 4 KM\n\u2705 Lantai 1 ada Flexible Room \u2014 legal untuk home office, studio kreatif, atau usaha online\n\u2705 Harga mulai 774 juta | Cicilan mulai 3,8 jt/bulan\n\u2705 Infrastruktur underground (listrik, internet, kabel semua rapi bawah tanah)\n\u2705 Lokasi premium Lippo Village Central\n\nMau saya kirim info lengkap + denah-nya, Kak?"},
+    {n:"Japri / Invitation", s:"/japri", b:"Selamat siang Kak \uD83D\uDE4F Izin memperkenalkan, saya Rinaldo dari tim pemasaran Lippo Village, Karawaci.\n\nSedang ada produk baru yang cukup unik: TreeTops @Diponegoro \u2014 rumah 3 lantai dengan 4 kamar tidur di kawasan Lippo Village Central. Yang menarik, harganya mulai 774 juta dengan cicilan mulai 3,8 juta/bulan, DP 2,5%.\n\nKalau Kakak sedang mencari hunian atau investasi properti di Tangerang, berkenan saya kirim detail & simulasi KPR-nya?"},
+    {n:"Follow Up Lead", s:"/fu", b:"Halo Kak, mau follow up soal TreeTops @Diponegoro yang kemarin saya info-kan \uD83D\uDE4F\n\nAda yang ingin ditanyakan lebih lanjut? Misalnya soal:\n\u2022 Pilihan tipe Standard vs Corner\n\u2022 Simulasi cicilan KPR\n\u2022 Proses & syarat pemesanan\n\nSaya siap bantu, Kak!"},
+    {n:"Balasan DM Masuk", s:"/dm", b:"Halo Kak, terima kasih sudah menghubungi! \uD83D\uDE0A Saya Rinaldo dari tim Lippo Village Karawaci.\n\nBoleh saya tahu Kakak sedang mencari properti untuk ditinggali atau untuk investasi? Nanti saya bisa rekomendasikan yang paling sesuai kebutuhan."},
+    {n:"Jawab Pertanyaan Harga & KPR", s:"/harga", b:"Untuk TreeTops @Diponegoro, harga & simulasi KPR-nya sebagai berikut, Kak:\n\n\uD83C\uDFE0 Tipe 3.3B Standard \u2014 mulai 774 juta\n   Cicilan \u00B13,8 jt/bulan | DP 2,5% | Tenor 20 thn\n\n\uD83C\uDFE0 Tipe 3.6B Standard \u2014 mulai 845 juta\n   Cicilan \u00B14,2 jt/bulan | DP 2,5% | Tenor 20 thn\n\n\uD83C\uDFE0 Tipe Corner \u2014 mulai 1,2 Miliar\n\nSemua tipe: 4 kamar tidur, 4 kamar mandi, 3 lantai.\n*Harga belum termasuk PPN. Simulasi menggunakan rate bank rekanan.\n\nMau saya bantu proses lebih lanjut, Kak?"}
+  ];
+
+  /* ---- STATE ---- */
+  function load(k,def){ try{var v=LS.getItem(k);return v?JSON.parse(v):def;}catch(e){return def;} }
+  function save(k,v){ try{LS.setItem(k,JSON.stringify(v));}catch(e){} }
+
+  var checks = load("wt_checks_"+todayKey, new Array(TASKS.length).fill(false));
+  var templates = load("wt_templates", DEFAULT_TPL);
+  var accounts = load("wt_accounts", [
+    {p:"Instagram", h:"lippovillage"},
+    {p:"Facebook Page", h:"lippovillage"},
+    {p:"TikTok", h:"Rumahkitaaldo"},
+    {p:"LinkedIn", h:""},
+    {p:"YouTube Channel", h:""},
+    {p:"Website", h:""},
+    {p:"Rumahdijual", h:""},
+    {p:"OLX", h:""}
+  ]);
+
+  /* ---- DATE ---- */
+  var days=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+  var months=["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+  var d=new Date();
+  document.getElementById("today").textContent =
+    days[d.getDay()]+", "+d.getDate()+" "+months[d.getMonth()]+" "+d.getFullYear();
+
+  /* ---- RENDER CHECKLIST ---- */
+  function renderList(){
+    var box=document.getElementById("list");
+    box.innerHTML="";
+    TASKS.forEach(function(task,i){
+      var el=document.createElement("div");
+      el.className="task"+(checks[i]?" done":"");
+      el.innerHTML=
+        '<div class="check"><div class="box">'+(checks[i]?'&#10003;':'')+'</div></div>'+
+        '<div class="tbody">'+
+          '<div class="tnum">TUGAS '+(i+1).toString().padStart(2,"0")+'</div>'+
+          '<div class="ttitle">'+task.t+'</div>'+
+          '<span class="ttarget">'+task.g+'</span>'+
+        '</div>';
+      el.addEventListener("click",function(){
+        checks[i]=!checks[i];
+        save("wt_checks_"+todayKey,checks);
+        renderList(); updateProgress();
+      });
+      box.appendChild(el);
+    });
+    var rb=document.createElement("button");
+    rb.className="resetbtn";
+    rb.textContent="↻ Reset untuk hari baru";
+    rb.addEventListener("click",function(){
+      if(confirm("Kosongkan semua centang untuk mulai hari baru?")){
+        checks=new Array(TASKS.length).fill(false);
+        save("wt_checks_"+todayKey,checks);
+        renderList(); updateProgress();
+      }
+    });
+    box.appendChild(rb);
+  }
+
+  function updateProgress(){
+    var n=checks.filter(Boolean).length;
+    document.getElementById("doneCount").textContent=n;
+    var bar=document.getElementById("bar");
+    bar.firstElementChild.style.width=(n/10*100)+"%";
+    var win=n>=8;
+    bar.classList.toggle("win",win);
+    document.getElementById("winmsg").classList.toggle("show",win);
+  }
+
+  /* ---- RENDER TEMPLATES ---- */
+  function renderTpl(){
+    var box=document.getElementById("tplList");
+    box.innerHTML="";
+    templates.forEach(function(tp,i){
+      var el=document.createElement("div");
+      el.className="tpl";
+      el.innerHTML=
+        '<h3><span class="tname"></span><span class="shortcut"></span></h3>'+
+        '<textarea></textarea>'+
+        '<div class="tplbtns">'+
+          '<button class="copybtn">📋 Salin</button>'+
+          '<button class="delbtn">🗑</button>'+
+        '</div>';
+      el.querySelector(".tname").textContent=tp.n;
+      el.querySelector(".shortcut").textContent=tp.s||"";
+      var ta=el.querySelector("textarea");
+      ta.value=tp.b;
+      ta.addEventListener("input",function(){
+        templates[i].b=ta.value; save("wt_templates",templates);
+      });
+      var cb=el.querySelector(".copybtn");
+      cb.addEventListener("click",function(){
+        copyText(ta.value);
+        cb.textContent="✓ Tersalin"; cb.classList.add("copied");
+        setTimeout(function(){cb.textContent="📋 Salin";cb.classList.remove("copied");},1400);
+      });
+      el.querySelector(".delbtn").addEventListener("click",function(){
+        if(confirm("Hapus template \""+tp.n+"\"?")){
+          templates.splice(i,1); save("wt_templates",templates); renderTpl();
+        }
+      });
+      box.appendChild(el);
+    });
+  }
+
+  document.getElementById("addTpl").addEventListener("click",function(){
+    var name=prompt("Nama template (mis. Balasan DM):");
+    if(!name) return;
+    var sc=prompt("Shortcut (opsional, mis. /dm):")||"";
+    templates.push({n:name,s:sc,b:""});
+    save("wt_templates",templates); renderTpl();
+  });
+
+  /* ---- RENDER ACCOUNTS ---- */
+  function renderAcct(){
+    var box=document.getElementById("acctList");
+    box.innerHTML="";
+    accounts.forEach(function(a){
+      var el=document.createElement("div");
+      el.className="acct";
+      var has=a.h&&a.h.trim()!=="";
+      el.innerHTML=
+        '<div>'+
+          '<div class="plat">'+a.p+'</div>'+
+          '<div class="handle'+(has?'':' empty')+'">'+(has?a.h:'belum diisi')+'</div>'+
+        '</div>';
+      if(has){
+        var btn=document.createElement("button");
+        btn.className="copyacct"; btn.textContent="Salin";
+        btn.addEventListener("click",function(){
+          copyText(a.h);
+          btn.textContent="✓"; btn.classList.add("copied");
+          setTimeout(function(){btn.textContent="Salin";btn.classList.remove("copied");},1200);
+        });
+        el.appendChild(btn);
+      }
+      box.appendChild(el);
+    });
+  }
+
+  /* ---- NOTES ---- */
+  var notesEl=document.getElementById("notes");
+  notesEl.value=load("wt_notes","")||"";
+  notesEl.addEventListener("input",function(){ save("wt_notes",notesEl.value); });
+
+  /* ---- COPY HELPER ---- */
+  function copyText(txt){
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).catch(function(){fallbackCopy(txt);});
+    } else { fallbackCopy(txt); }
+  }
+  function fallbackCopy(txt){
+    var ta=document.createElement("textarea");
+    ta.value=txt; ta.style.position="fixed"; ta.style.opacity="0";
+    document.body.appendChild(ta); ta.select();
+    try{document.execCommand("copy");}catch(e){}
+    document.body.removeChild(ta);
+  }
+
+  /* ---- TABS ---- */
+  var tabs=document.querySelectorAll(".tab");
+  tabs.forEach(function(tab){
+    tab.addEventListener("click",function(){
+      tabs.forEach(function(t){t.classList.remove("active");});
+      tab.classList.add("active");
+      document.querySelectorAll(".panel").forEach(function(p){p.classList.remove("active");});
+      var id=tab.dataset.tab;
+      document.getElementById(id==="notes"?"notes-panel":id).classList.add("active");
+    });
+  });
+
+  /* ---- NAME EDIT ---- */
+  var nameEl = document.getElementById("nameDisplay");
+  var savedName = load("wt_username", "");
+  if(savedName) nameEl.textContent = savedName;
+  nameEl.addEventListener("click", function(){
+    var cur = nameEl.textContent;
+    var input = document.createElement("input");
+    input.value = cur;
+    input.style.cssText = "background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.6);color:inherit;font:inherit;font-weight:700;font-size:inherit;outline:none;width:"+(cur.length+4)+"ch;max-width:160px;";
+    nameEl.replaceWith(input);
+    input.focus(); input.select();
+    function commit(){
+      var val = input.value.trim() || cur;
+      nameEl.textContent = val;
+      save("wt_username", val);
+      // update winmsg
+      document.getElementById("winmsg").textContent = "Target minimal 8 ceklist tercapai. Mantap, " + val.split(" ")[0] + "!";
+      input.replaceWith(nameEl);
+    }
+    input.addEventListener("blur", commit);
+    input.addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); commit(); } });
+  });
+  // init winmsg name
+  var initName = load("wt_username","") || "Aldo";
+  document.getElementById("winmsg").textContent = "Target minimal 8 ceklist tercapai. Mantap, " + initName.split(" ")[0] + "!";
+
+  /* ---- INIT ---- */
+  renderList(); updateProgress(); renderTpl(); renderAcct();
+})();
+</script>
+</body>
+</html>
