@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Work Plan Harian — Alpha Team</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Newsreader:ital,opsz@0,6..72;1,6..72&display=swap');
+  :root{--ink:#1a1814;--paper:#f4efe6;--card:#fffdf8;--line:#e2dacb;--accent:#c8492f;--accent-soft:#f0d9d2;--green:#3f6b3a;--green-soft:#dde8d8;--muted:#8a8276;--gold:#b8893d;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{background:var(--paper);}
+  body{font-family:'Bricolage Grotesque',sans-serif;color:var(--ink);max-width:560px;margin:0 auto;padding:0 0 60px;min-height:100vh;}
+  header{background:var(--ink);color:var(--paper);padding:22px 20px 26px;border-bottom:3px solid var(--accent);position:relative;overflow:hidden;}
+  header::after{content:"";position:absolute;right:-30px;top:-30px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(200,73,47,.35),transparent 70%);}
+  .kicker{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);font-weight:600;}
+  h1{font-family:'Newsreader',serif;font-weight:600;font-size:30px;line-height:1.05;margin:4px 0 2px;font-style:italic;}
+  .datebar{display:flex;justify-content:space-between;align-items:flex-end;margin-top:14px;gap:12px;}
+  .datebar .who{font-size:13px;color:#cdc6b8;}
+  .datebar .who b{color:var(--paper);font-weight:600;cursor:pointer;border-bottom:1px dashed rgba(255,255,255,0.4);padding-bottom:1px;}
+  #today{font-size:13px;color:var(--paper);text-align:right;border:1px solid #4a463e;border-radius:8px;padding:6px 10px;background:#262219;}
+  .progwrap{padding:18px 20px 6px;}
+  .progtop{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+  .progtop .label{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600;}
+  .progtop .count{font-family:'Newsreader',serif;font-size:15px;}
+  .progtop .count b{font-size:26px;color:var(--accent);font-style:italic;}
+  .bar{height:14px;background:#e7ded0;border-radius:20px;overflow:hidden;border:1px solid var(--line);}
+  .bar>div{height:100%;width:0%;background:repeating-linear-gradient(45deg,var(--accent),var(--accent) 8px,#d4583e 8px,#d4583e 16px);transition:width .5s cubic-bezier(.2,.8,.2,1);}
+  .bar.win>div{background:repeating-linear-gradient(45deg,var(--green),var(--green) 8px,#4d7d47 8px,#4d7d47 16px);}
+  .winmsg{text-align:center;font-family:'Newsreader',serif;font-style:italic;font-size:14px;color:var(--green);margin-top:8px;height:18px;opacity:0;transition:opacity .4s;}
+  .winmsg.show{opacity:1;}
+  .tabs{display:flex;gap:6px;padding:14px 20px 0;}
+  .tab{flex:1;padding:9px 4px;text-align:center;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;background:transparent;border:none;color:var(--muted);border-bottom:2px solid transparent;font-family:inherit;}
+  .tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+  .panel{display:none;padding:14px 20px 0;}
+  .panel.active{display:block;}
+  .task{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:10px;display:flex;align-items:stretch;overflow:hidden;}
+  .task.done{background:var(--green-soft);border-color:#c2d4ba;}
+  .check{width:54px;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;border-right:1px solid var(--line);background:#fbf8f1;}
+  .task.done .check{background:#cfe0c7;border-right-color:#c2d4ba;}
+  .box{width:26px;height:26px;border:2px solid var(--muted);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;}
+  .task.done .box{background:var(--green);border-color:var(--green);}
+  .tbody{padding:11px 12px;flex:1;cursor:pointer;}
+  .tnum{font-size:10px;letter-spacing:.1em;color:var(--gold);font-weight:600;}
+  .ttitle{font-size:14.5px;font-weight:600;line-height:1.3;margin-top:1px;}
+  .task.done .ttitle{text-decoration:line-through;color:var(--muted);}
+  .ttarget{font-size:11px;color:var(--accent);background:var(--accent-soft);display:inline-block;padding:2px 8px;border-radius:20px;margin-top:5px;font-weight:600;}
+  .task.done .ttarget{color:var(--green);background:#cfe0c7;}
+  .tpl-badge{font-size:10px;background:#262219;color:var(--gold);padding:2px 7px;border-radius:20px;margin-left:6px;}
+  .resetbtn{width:100%;margin-top:6px;padding:13px;border:1.5px dashed var(--line);background:transparent;border-radius:12px;color:var(--muted);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;}
+  .tpl{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 14px;margin-bottom:10px;}
+  .tpl h3{font-size:13px;font-weight:600;display:flex;justify-content:space-between;align-items:center;}
+  .tpl .shortcut{font-size:10px;color:var(--gold);}
+  .tpl textarea{width:100%;margin-top:8px;border:1px solid var(--line);border-radius:8px;padding:9px;font-family:'Newsreader',serif;font-size:13.5px;line-height:1.5;background:#fffef9;color:var(--ink);resize:vertical;min-height:70px;}
+  .tplbtns{display:flex;gap:7px;margin-top:8px;}
+  .tplbtns button{flex:1;padding:8px;border-radius:8px;border:none;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;}
+  .copybtn{background:var(--ink);color:var(--paper);}
+  .copybtn.copied{background:var(--green);}
+  .delbtn{background:var(--accent-soft);color:var(--accent);flex:0 0 44px;}
+  .addbtn{width:100%;padding:12px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-family:inherit;font-weight:600;font-size:13px;cursor:pointer;}
+  .noteshint{font-size:12px;color:var(--muted);font-style:italic;font-family:'Newsreader',serif;margin-bottom:10px;}
+  #notes{width:100%;border:1px solid var(--line);border-radius:12px;padding:13px;font-family:'Newsreader',serif;font-size:14px;line-height:1.6;background:var(--card);color:var(--ink);resize:vertical;min-height:240px;}
+  .acct{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-bottom:8px;}
+  .acct .plat{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;}
+  .acct .handle{font-size:14px;font-weight:600;margin-top:1px;}
+  .acct .handle.empty{color:#c4bcab;font-weight:400;font-style:italic;}
+  .acct .copyacct{background:#fbf8f1;border:1px solid var(--line);border-radius:7px;padding:7px 11px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--ink);}
+  .acct .copyacct.copied{background:var(--green);color:#fff;border-color:var(--green);}
+  .sectlabel{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:4px 0 10px;}
+  footer{text-align:center;font-size:11px;color:#bdb4a3;margin-top:24px;font-family:'Newsreader',serif;font-style:italic;}
+  .modal-overlay{position:fixed;inset:0;background:rgba(26,24,20,.75);z-index:999;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s;}
+  .modal-overlay.show{opacity:1;pointer-events:all;}
+  .modal-box{width:100%;max-height:85vh;overflow-y:auto;background:var(--card);border-radius:20px 20px 0 0;padding:0 0 32px;transform:translateY(40px);transition:transform .3s cubic-bezier(.2,.8,.2,1);}
+  .modal-overlay.show .modal-box{transform:translateY(0);}
+  .modal-handle{width:40px;height:4px;border-radius:4px;background:var(--line);margin:12px auto 0;}
+  .modal-head{padding:16px 20px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);}
+  .modal-head .mtask{font-size:11px;color:var(--gold);font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
+  .modal-head .mtitle{font-size:15px;font-weight:700;margin-top:2px;}
+  .modal-close{background:var(--line);border:none;border-radius:50%;width:32px;height:32px;font-size:16px;cursor:pointer;font-family:inherit;color:var(--ink);}
+  .modal-item{margin:12px 16px 0;background:#fffef9;border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+  .modal-item-name{padding:10px 14px 0;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);}
+  .modal-item-body{padding:8px 14px 0;font-family:'Newsreader',serif;font-size:13.5px;line-height:1.55;color:var(--ink);white-space:pre-wrap;max-height:100px;overflow:hidden;position:relative;}
+  .modal-item-body.expanded{max-height:none;}
+  .modal-item-body:not(.expanded)::after{content:"";position:absolute;bottom:0;left:0;right:0;height:28px;background:linear-gradient(transparent,#fffef9);}
+  .modal-item-btns{display:flex;gap:8px;padding:10px 14px 14px;}
+  .btn-copy{flex:1;padding:10px;border-radius:9px;border:none;background:var(--ink);color:var(--paper);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;}
+  .btn-copy.copied{background:var(--green);}
+  .btn-expand{padding:10px 12px;border-radius:9px;border:1px solid var(--line);background:transparent;color:var(--muted);font-family:inherit;font-size:12px;cursor:pointer;}
+  .modal-skip{display:block;width:calc(100% - 32px);margin:12px 16px 0;padding:11px;border-radius:10px;border:1.5px dashed var(--line);background:transparent;color:var(--muted);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;}
+</style>
+</head>
+<body>
+<header>
+  <div class="kicker">Work Plan Harian</div>
+  <h1>Alpha Team</h1>
+  <div class="datebar">
+    <div class="who">Pelaksana: <b id="nameDisplay">Rinaldo</b></div>
+    <div id="today">—</div>
+  </div>
+</header>
+<div class="progwrap">
+  <div class="progtop">
+    <span class="label">Progress hari ini</span>
+    <span class="count"><b id="doneCount">0</b> / 10 tugas</span>
+  </div>
+  <div class="bar" id="bar"><div></div></div>
+  <div class="winmsg" id="winmsg">Target minimal 8 ceklist tercapai!</div>
+</div>
+<div class="tabs">
+  <button class="tab active" data-tab="list">Checklist</button>
+  <button class="tab" data-tab="tpl">Template</button>
+  <button class="tab" data-tab="notes">Catatan</button>
+  <button class="tab" data-tab="acct">Akun</button>
+</div>
+<div class="panel active" id="list"></div>
+<div class="panel" id="tpl">
+  <p class="noteshint">Template siap pakai. Tap "Salin" lalu paste di WhatsApp.</p>
+  <div id="tplList"></div>
+  <button class="addbtn" id="addTpl">+ Tambah Template</button>
+</div>
+<div class="panel" id="notes-panel">
+  <p class="noteshint">Catatan harian — sudah DM siapa, lead prospek, follow up besok, dll.</p>
+  <textarea id="notes" placeholder="Contoh:&#10;- DM 20 sudah, 3 balas&#10;- Follow up besok: Pak Andre minta brosur"></textarea>
+</div>
+<div class="panel" id="acct">
+  <div class="sectlabel">Akun Online</div>
+  <div id="acctList"></div>
+</div>
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-head">
+      <div>
+        <div class="mtask" id="modalTaskLabel"></div>
+        <div class="mtitle">Template siap kirim 👇</div>
+      </div>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <div id="modalItems"></div>
+    <button class="modal-skip" id="modalSkip">Lewati, lanjut tanpa template</button>
+  </div>
+</div>
+<footer>Disiapkan sekali · dipakai tiap hari · data tersimpan di HP kamu</footer>
+<script>
+window.addEventListener('DOMContentLoaded', function(){
+  var LS = window.localStorage;
+  var VER = "v11";
+  if(LS.getItem("wt_ver") !== VER){
+    var sn=LS.getItem("wt_username"), st=LS.getItem("wt_templates");
+    LS.clear();
+    if(sn) LS.setItem("wt_username",sn);
+    if(st) LS.setItem("wt_templates",st);
+    LS.setItem("wt_ver",VER);
+  }
+  var todayKey = new Date().toISOString().slice(0,10);
+  function lg(k,d){try{var v=LS.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+  function ls(k,v){try{LS.setItem(k,JSON.stringify(v));}catch(e){}}
+
+  var TASKS = [
+    {t:"Post IG & FB — Feeds + Story",              g:"Story 3",           tpl:[]},
+    {t:"Post TikTok — Story + Feeds video baru",    g:"Story 3 · Video 2",tpl:[]},
+    {t:"Update WA Status",                               g:"5 status",          tpl:[]},
+    {t:"DM Prospek Baru — Instagram / TikTok",           g:"20 DM outbound",    tpl:[0,1,4]},
+    {t:"Olah Database + Save Contact",                   g:"30 kontak",         tpl:[]},
+    {t:"Broadcast Update Promo (perkenalan produk)",     g:"50 orang",          tpl:[0,1,2,3]},
+    {t:"Japri Update Promo / Invitation",                g:"50 orang",          tpl:[4]},
+    {t:"Paid Promo (IG / FB / Meta)",                    g:"Jalankan",          tpl:[]},
+    {t:"Canvassing / Live TikTok / Live IG",             g:"2 jam",             tpl:[]},
+    {t:"Open Table",                                     g:"Sesuai jadwal",     tpl:[]}
+  ];
+
+  var DEFAULT_TPL = [
+    {n:"Broadcast - Hook Harga",s:"/promo1",b:"Halo Kak \uD83D\uDC4B Ada info menarik nih!\n\nRumah 3 lantai, 4 kamar tidur, 4 kamar mandi di kawasan premium Lippo Village Karawaci.\n\n\uD83C\uDFE0 TreeTops @Diponegoro\n\u2714 Harga cash mulai Rp 870 juta (sudah include PPN + kanopi kaca)\n\u2714 KPR: cicilan mulai Rp 5,2 jt/bulan, DP hanya Rp 22 jutaan\n\u2714 3 lantai | 4 KT | 4 KM | Flexible Room lantai 1\n\u2714 View langsung ke canal (sungai buatan) \u2014 bukan hadap tembok tetangga\n\u2714 Lokasi Lippo Village Central - dekat SPH, RS Siloam, Supermall\n\nBoleh saya kirim detail lengkap + simulasi KPR-nya, Kak?"},
+    {n:"Broadcast - Hook WFH",s:"/promo2",b:"Halo Kak \uD83D\uDC4B Kalau Kakak kerja dari rumah atau punya bisnis online, properti ini worth banget.\n\nTreeTops @Diponegoro - Lippo Village Karawaci:\n\u2705 Lantai 1 ada Flexible Room - legal buat home office & studio konten\n\u2705 3 lantai, 4 KT, 4 KM - ruang lega buat kerja sekaligus hidup\n\u2705 Cash mulai 870 juta (include PPN) | KPR cicilan mulai 5,2 jt/bulan\n\u2705 Kawasan Lippo Village Central yang sangat mapan\n\nMau saya kirim info lengkap + denah-nya, Kak?"},
+    {n:"Broadcast - Hook Investor",s:"/promo3",b:"Halo Kak \uD83D\uDC4B Buat yang lagi nyari properti untuk investasi, ada yang menarik nih.\n\nTreeTops @Diponegoro - Lippo Village Karawaci:\n\uD83D\uDCB0 Harga mulai 870 juta (cash, include PPN)\n\uD83D\uDCB0 KPR DP hanya 2,5% - modal awal ringan\n\uD83D\uDCC8 Lippo Village >30 tahun berkembang - nilai properti naik stabil\n\uD83C\uDFEB Dekat UPH & Sekolah Internasional - demand sewa tinggi\n\uD83C\uDFE5 Dekat RS Siloam - salah satu RS terbesar di Tangerang\n\nBoleh saya kirim analisisnya, Kak?"},
+    {n:"Broadcast - Hook Keluarga Muda",s:"/promo4",b:"Halo Kak \uD83D\uDC4B Lagi nyari rumah pertama buat keluarga?\n\nTreeTops @Diponegoro - Lippo Village Karawaci \uD83C\uDFE1\n\u2B50 3 lantai, 4 kamar tidur, 4 kamar mandi\n\u2B50 View canal (sungai buatan) langsung dari depan rumah \u2014 bukan hadap tembok\n\u2B50 Lingkungan aman, hijau, tertata di Lippo Village Central\n\u2B50 Dekat Sekolah Pelita Harapan, Dian Harapan & RS Siloam\n\u2B50 Cash mulai 870 juta | KPR cicilan 5,2 jt/bulan, DP cuma 22 jutaan\n\u2B50 Flexible Room lantai 1 - bisa ruang main anak atau ruang kerja\n\nBoleh saya kirimkan info lengkap & simulasi KPR-nya, Kak?"},
+    {n:"Japri / Invitation",s:"/japri",b:"Selamat siang Kak \uD83D\uDE4F Izin memperkenalkan, saya Rinaldo dari tim pemasaran Lippo Village, Karawaci.\n\nSedang ada produk baru: TreeTops @Diponegoro - rumah 3 lantai, 4 kamar tidur di Lippo Village Central.\n\nSelain itu, beberapa unit posisinya langsung menghadap canal (sungai buatan) \u2014 view-nya indah, bukan hadap tembok tetangga seperti cluster biasa.\n\nHarga cashnya mulai 870 juta sudah include PPN + kanopi kaca. KPR: DP hanya 2,5% (sekitar 22 jutaan), cicilan mulai 5,2 jt/bulan, tenor 20 tahun.\n\nBerkenan saya kirim info lengkap & simulasi KPR-nya, Kak?"},
+    {n:"Follow Up - Hari 1-2",s:"/fu1",b:"Halo Kak \uD83D\uDE4F Mau follow up soal info TreeTops @Diponegoro yang kemarin saya kirim.\n\nAda yang ingin ditanyakan soal tipe unit, simulasi KPR, atau lokasi cluster? Saya siap bantu jelaskan, Kak \uD83D\uDE4F"},
+    {n:"Follow Up - Hari 3-5",s:"/fu2",b:"Halo Kak, Rinaldo dari Lippo Village \uD83D\uDE4F\n\nSekadar mengingatkan kembali soal TreeTops @Diponegoro. Unit masih terbatas dan beberapa calon pembeli sudah mulai proses booking.\n\nKalau tertarik survey atau tanya-tanya dulu, saya siap menemani tanpa komitmen apapun, Kak \uD83D\uDE0A"},
+    {n:"Follow Up - 1 Minggu+",s:"/fu3",b:"Halo Kak! Rinaldo dari Lippo Village \uD83D\uDC4B\n\nSudah seminggu lebih sejak saya share info TreeTops @Diponegoro. Apakah Kakak masih dalam proses mempertimbangkan, atau ada perubahan kebutuhan?\n\nJangan sungkan kalau ada pertanyaan ya Kak, saya di sini \uD83D\uDE4F"},
+    {n:"Balasan DM Masuk",s:"/dm",b:"Halo Kak, terima kasih sudah menghubungi! \uD83D\uDE0A Saya Rinaldo dari tim Lippo Village Karawaci.\n\nBoleh saya tahu Kakak sedang mencari properti untuk ditinggali sendiri atau untuk investasi? Nanti saya rekomendasikan yang paling sesuai, Kak \uD83D\uDE4F"},
+    {n:"Jawab Harga & KPR",s:"/harga",b:"Untuk TreeTops @Diponegoro, ini detail harga & KPR-nya, Kak:\n\nCASH: Mulai Rp 870 juta (include PPN + kanopi kaca)\n\nKPR - Tipe 3.3B Standard:\nHarga Rp 906 juta | DP 2,5% = Rp 22,6 juta\nCicilan +-Rp 5,2 jt/bln | Tenor 20 thn | Bunga 3,75%/thn\n\nSemua tipe: 3 lantai | 4 KT | 4 KM\n\n*Angka estimasi, hasil final sesuai kebijakan bank.\n\nAda pertanyaan lain, Kak? \uD83D\uDE4F"},
+    {n:"Undangan Survey / Open Table",s:"/survey",b:"Halo Kak \uD83D\uDC4B Kami mengundang Kakak untuk datang langsung melihat unit TreeTops @Diponegoro di Lippo Village, Karawaci.\n\nKakak bisa:\n- Lihat lokasi & cluster langsung\n- Diskusi tipe & harga tanpa tekanan\n- Konsultasi simulasi KPR on the spot\n- Lihat show unit (tersedia akhir Mei)\n\nKapan ada waktu untuk visit? Saya bantu atur jadwalnya \uD83D\uDE0A"},
+    {n:"Handle Keberatan - Harga",s:"/keberatan",b:"Saya ngerti, Kak \uD83D\uDE4F Harga properti memang jadi pertimbangan utama.\n\nYang menarik dari TreeTops justru di KPR-nya:\n- DP hanya 2,5% - sekitar Rp 22 jutaan\n- Cicilan mulai Rp 5,2 jt/bulan (tenor 20 tahun)\n- Bunga 3,75%/thn - termasuk rendah\n\nModal awal ringan untuk miliki rumah 3 lantai 4 kamar di Lippo Village. Mau saya bantu hitung sesuai budget Kakak?"},
+    {n:"Konfirmasi Booking",s:"/booking",b:"Halo Kak, terima kasih atas kepercayaannya \uD83D\uDE4F\uD83D\uDE0A\n\nUntuk proses pemesanan TreeTops @Diponegoro:\n\n1. Tanda tangan KP (Konfirmasi Pemesanan)\n2. Pembayaran booking fee\n3. Penandatanganan P3U\n4. Proses KPR / pembayaran sesuai cara bayar\n\nEstimasi serah terima: 18 bulan sejak pencairan KPR (grace period 6 bulan).\n\nAda yang ingin saya bantu jelaskan lebih lanjut, Kak?"}
+  ,{n:"Investasi — Passive Income Kos",s:"/invest1",b:"Halo Kak 👋 Kalau Kakak tertarik properti yang bisa langsung menghasilkan, ada analisis menarik untuk TreeTops @Diponegoro ini.\n\nRumah 3 lantai ini layout-nya fleksibel \u2014 bisa dioptimalkan jadi kos-kosan dengan potensi 6-8 kamar (tergantung desain renovasi, perlu izin TMD kawasan).\n\nEstimasi passive income-nya:\n\uD83D\uDCB0 6 kamar x Rp 2 jt/bln = Rp 12 jt/bulan gross\n\uD83D\uDCB0 Net setelah ops: \u00B1Rp 8,1 jt/bulan (asumsi occ 80%)\n\uD83D\uDCB0 8 kamar x Rp 2 jt/bln = net \u00B1Rp 11,3 jt/bulan\n\nTarget penyewa: pekerja & profesional di Lippo Karawaci, Gading Serpong, dan mahasiswa UPH \u2014 demand sewa kawasan ini sangat aktif.\n\nBoleh saya kirim analisis lengkap + simulasi return-nya, Kak?"}
+  ,{n:"Investasi \u2014 Analisis Return & Balik Modal",s:"/invest2",b:"Ini simulasi return investasi TreeTops @Diponegoro sebagai kos-kosan, Kak:\n\n\uD83C\uDFE6 SKENARIO KPR (paling efisien)\nModal awal: DP Rp 22,6 jt + renovasi \u00B1Rp 90 jt = total \u00B1Rp 112 jt\nIncome sewa (6 kamar x 2 jt, occ 80%): Rp 9,6 jt/bulan\nSetelah cicilan KPR (5,2 jt) & ops (1,5 jt): +Rp 2,8 jt/bulan bersih\nBalik modal dari kantong sendiri: \u00B13 tahun\nSetelah itu: passive income \u00B1Rp 2,8 jt/bulan, properti tetap dicicil bank\n\n\uD83D\uDCB5 SKENARIO CASH (8 kamar, AC)\nTotal invest \u00B1Rp 990 jt | Net \u00B1Rp 11,3 jt/bulan\nNet Yield: 13,7%/thn | Balik modal: \u00B17 tahun\n\nKenaikan nilai properti Lippo Village historis 8-12%/thn belum dihitung.\n\n*Simulasi estimasi. Penggunaan komersial perlu izin TMD. Angka aktual tergantung desain renovasi.\n\nMau saya bantu presentasikan lebih detail, Kak?"}
+  ,{n:"Highlight \u2014 View Canal & Lokasi",s:"/canal",b:"Halo Kak \uD83D\uDC4B Salah satu hal yang bikin TreeTops @Diponegoro beda dari cluster lain:\n\n\uD83C\uDF0A Beberapa unit posisinya langsung menghadap canal (sungai buatan) \u2014 jadi view dari rumah itu air mengalir, bukan tembok atau garasi tetangga.\n\nDitambah lokasinya di Lippo Village Central yang sangat strategis:\n\uD83D\uDCCD \u00B12,9 km ke Sekolah Pelita Harapan\n\uD83D\uDCCD \u00B12,5 km ke Sekolah Dian Harapan\n\uD83D\uDCCD \u00B15 km ke RS Siloam Lippo Village\n\uD83D\uDCCD \u00B14,2 km ke Supermall & Maxxbox Karawaci\n\uD83D\uDCCD \u00B15,8 km ke Universitas Pelita Harapan\n\nRumah 3 lantai, 4 KT, 4 KM. Cash mulai 870 juta | KPR DP cuma 2,5%.\n\nMau saya kirim foto view canal + denah unit-nya, Kak?"}
+  ,{n:"Developer — Profil & Track Record",s:"/developer",b:"Halo Kak, izin share sedikit soal developer di balik TreeTops @Diponegoro biar Kakak makin yakin \uD83D\uDE4F\n\nDevelopernya adalah PT Lippo Karawaci Tbk (LPKR) \u2014 salah satu developer properti terbesar dan tertua di Indonesia.\n\nTrack record-nya:\n\uD83D\uDCC5 Berdiri sejak 1990, sudah 35+ tahun\n\uD83C\uDFD9 Pionir kota mandiri di Indonesia \u2014 Lippo Village dibangun 1993, jadi benchmark pengembang lain\n\uD83C\uDFE5 Membangun & mengoperasikan RS Siloam (jaringan RS swasta terbesar di RI)\n\uD83C\uDFEC Mengembangkan puluhan Lippo Mall di seluruh Indonesia\n\uD83C\uDFEB Mendirikan Universitas Pelita Harapan & Sekolah Pelita Harapan\n\uD83D\uDCCA Tbk \u2014 sahamnya tercatat di Bursa Efek Indonesia (kode: LPKR)\n\nArtinya Kakak beli dari developer yang transparan secara keuangan, sudah terbukti selesaikan ribuan unit selama 35 tahun, dan seluruh fasilitasnya \u2014 RS, sekolah, mal \u2014 mereka bangun & kelola sendiri di kawasan yang sama.\n\nMau saya kirim info lebih lengkap soal produk & simulasi KPR-nya, Kak?"}
+  ,{n:"Developer — Versi Singkat (buat DM)",s:"/dev2",b:"Soal developernya, Kak \u2014 ini PT Lippo Karawaci Tbk, perusahaan properti Tbk yang sudah 35+ tahun. Mereka yang bangun Lippo Village dari nol sejak 1993, termasuk RS Siloam, UPH, dan Sekolah Pelita Harapan yang sekarang ada di kawasan. Jadi bukan developer baru \u2014 kawasannya sudah sangat matang dan terbukti \uD83D\uDE4F"}
+  ];
+
+  var checks   = lg("wt_checks_"+todayKey, new Array(TASKS.length).fill(false));
+  var templates= lg("wt_templates", DEFAULT_TPL);
+  var accounts = lg("wt_accounts",[
+    {p:"Instagram",h:"lippovillage"},{p:"Facebook Page",h:"lippovillage"},
+    {p:"TikTok",h:"Rumahkitaaldo"},{p:"LinkedIn",h:""},{p:"YouTube",h:""},
+    {p:"Website",h:""},{p:"Rumahdijual",h:""},{p:"OLX",h:""}
+  ]);
+
+  var DAYS=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+  var MONTHS=["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+  var d=new Date();
+  document.getElementById("today").textContent=DAYS[d.getDay()]+", "+d.getDate()+" "+MONTHS[d.getMonth()]+" "+d.getFullYear();
+
+  function getFirstName(){return(lg("wt_username","")||document.getElementById("nameDisplay").textContent||"").split(" ")[0]||"kamu";}
+  function updateWinMsg(){document.getElementById("winmsg").textContent="Target minimal 8 ceklist tercapai. Mantap, "+getFirstName()+"!";}
+  var nameEl=document.getElementById("nameDisplay");
+  var sn=lg("wt_username",""); if(sn) nameEl.textContent=sn;
+  updateWinMsg();
+  nameEl.addEventListener("click",function(){
+    var cur=nameEl.textContent;
+    var inp=document.createElement("input");
+    inp.value=cur; inp.style.cssText="background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.6);color:inherit;font:inherit;font-weight:700;outline:none;width:120px;";
+    nameEl.replaceWith(inp); inp.focus(); inp.select();
+    function commit(){var v=inp.value.trim()||cur;nameEl.textContent=v;ls("wt_username",v);updateWinMsg();inp.replaceWith(nameEl);}
+    inp.addEventListener("blur",commit);
+    inp.addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();commit();}});
+  });
+
+  function copyText(t){
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).catch(function(){fb(t)});}
+    else{fb(t);}
+  }
+  function fb(t){var ta=document.createElement("textarea");ta.value=t;ta.style.cssText="position:fixed;opacity:0;";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");}catch(e){}document.body.removeChild(ta);}
+
+  var overlay=document.getElementById("modalOverlay");
+  document.getElementById("modalClose").addEventListener("click",closeModal);
+  document.getElementById("modalSkip").addEventListener("click",closeModal);
+  overlay.addEventListener("click",function(e){if(e.target===overlay)closeModal();});
+  function openModal(taskName,idxs){
+    document.getElementById("modalTaskLabel").textContent=taskName;
+    var c=document.getElementById("modalItems"); c.innerHTML="";
+    idxs.forEach(function(i){
+      var tp=templates[i]; if(!tp)return;
+      var wrap=document.createElement("div"); wrap.className="modal-item";
+      var nm=document.createElement("div"); nm.className="modal-item-name"; nm.textContent=tp.n;
+      var bd=document.createElement("div"); bd.className="modal-item-body"; bd.textContent=tp.b;
+      var btns=document.createElement("div"); btns.className="modal-item-btns";
+      var cb=document.createElement("button"); cb.className="btn-copy"; cb.textContent="📋 Salin & Tutup";
+      cb.addEventListener("click",function(){copyText(tp.b);cb.textContent="✓ Tersalin!";cb.classList.add("copied");setTimeout(closeModal,800);});
+      var eb=document.createElement("button"); eb.className="btn-expand"; eb.textContent="Baca";
+      eb.addEventListener("click",function(){bd.classList.toggle("expanded");eb.textContent=bd.classList.contains("expanded")?"Ringkas":"Baca";});
+      btns.appendChild(cb); btns.appendChild(eb);
+      wrap.appendChild(nm); wrap.appendChild(bd); wrap.appendChild(btns);
+      c.appendChild(wrap);
+    });
+    overlay.classList.add("show");
+  }
+  function closeModal(){overlay.classList.remove("show");}
+
+  function renderList(){
+    var box=document.getElementById("list"); box.innerHTML="";
+    TASKS.forEach(function(task,i){
+      var el=document.createElement("div"); el.className="task"+(checks[i]?" done":"");
+      var hp=task.tpl&&task.tpl.length>0;
+      el.innerHTML='<div class="check"><div class="box">'+(checks[i]?'&#10003;':'')+'</div></div>'+
+        '<div class="tbody"><div class="tnum">TUGAS '+(i+1).toString().padStart(2,"0")+
+        (hp?'<span class="tpl-badge">💬 template</span>':'')+
+        '</div><div class="ttitle">'+task.t+'</div><span class="ttarget">'+task.g+'</span></div>';
+      el.addEventListener("click",function(){
+        var was=checks[i]; checks[i]=!checks[i]; ls("wt_checks_"+todayKey,checks);
+        renderList(); updateProgress();
+        if(!was&&checks[i]&&hp) openModal(task.t,task.tpl);
+      });
+      box.appendChild(el);
+    });
+    var rb=document.createElement("button"); rb.className="resetbtn"; rb.textContent="↻ Reset untuk hari baru";
+    rb.addEventListener("click",function(){if(confirm("Kosongkan semua centang?")){checks=new Array(TASKS.length).fill(false);ls("wt_checks_"+todayKey,checks);renderList();updateProgress();}});
+    box.appendChild(rb);
+  }
+
+  function updateProgress(){
+    var n=checks.filter(Boolean).length;
+    document.getElementById("doneCount").textContent=n;
+    var bar=document.getElementById("bar");
+    bar.firstElementChild.style.width=(n/10*100)+"%";
+    var win=n>=8; bar.classList.toggle("win",win);
+    document.getElementById("winmsg").classList.toggle("show",win);
+  }
+
+  function renderTpl(){
+    var box=document.getElementById("tplList"); box.innerHTML="";
+    templates.forEach(function(tp,i){
+      var el=document.createElement("div"); el.className="tpl";
+      el.innerHTML='<h3><span></span><span class="shortcut"></span></h3><textarea></textarea><div class="tplbtns"><button class="copybtn">📋 Salin</button><button class="delbtn">🗑</button></div>';
+      el.querySelector("h3 span").textContent=tp.n;
+      el.querySelector(".shortcut").textContent=tp.s||"";
+      var ta=el.querySelector("textarea"); ta.value=tp.b;
+      ta.addEventListener("input",function(){templates[i].b=ta.value;ls("wt_templates",templates);});
+      var cb=el.querySelector(".copybtn");
+      cb.addEventListener("click",function(){copyText(ta.value);cb.textContent="✓ Tersalin";cb.classList.add("copied");setTimeout(function(){cb.textContent="📋 Salin";cb.classList.remove("copied");},1400);});
+      el.querySelector(".delbtn").addEventListener("click",function(){if(confirm('Hapus "'+tp.n+'"?')){templates.splice(i,1);ls("wt_templates",templates);renderTpl();}});
+      box.appendChild(el);
+    });
+  }
+  document.getElementById("addTpl").addEventListener("click",function(){
+    var n=prompt("Nama template:"); if(!n)return;
+    var s=prompt("Shortcut (mis. /dm):")||"";
+    templates.push({n:n,s:s,b:""}); ls("wt_templates",templates); renderTpl();
+  });
+
+  var notesEl=document.getElementById("notes");
+  notesEl.value=lg("wt_notes","")||"";
+  notesEl.addEventListener("input",function(){ls("wt_notes",notesEl.value);});
+
+  function renderAcct(){
+    var box=document.getElementById("acctList"); box.innerHTML="";
+    accounts.forEach(function(a){
+      var el=document.createElement("div"); el.className="acct";
+      var has=a.h&&a.h.trim()!=="";
+      el.innerHTML='<div><div class="plat">'+a.p+'</div><div class="handle'+(has?'':' empty')+'">'+(has?a.h:'belum diisi')+'</div></div>';
+      if(has){var btn=document.createElement("button");btn.className="copyacct";btn.textContent="Salin";
+        btn.addEventListener("click",function(){copyText(a.h);btn.textContent="✓";btn.classList.add("copied");setTimeout(function(){btn.textContent="Salin";btn.classList.remove("copied");},1200);});
+        el.appendChild(btn);}
+      box.appendChild(el);
+    });
+  }
+
+  document.querySelectorAll(".tab").forEach(function(tab){
+    tab.addEventListener("click",function(){
+      document.querySelectorAll(".tab").forEach(function(t){t.classList.remove("active");});
+      tab.classList.add("active");
+      document.querySelectorAll(".panel").forEach(function(p){p.classList.remove("active");});
+      var id=tab.dataset.tab;
+      document.getElementById(id==="notes"?"notes-panel":id).classList.add("active");
+    });
+  });
+
+  renderList(); updateProgress(); renderTpl(); renderAcct();
+});
+</script>
+</body>
+</html>
